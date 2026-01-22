@@ -1,23 +1,21 @@
 import random
-
-class Tile:
-    def __init__(self):
-        self.food = random.randint(3, 7)
-        self.owner = None  # group id
-
-    def regenerate(self):
-        self.food = min(self.food + 1, 10)
-
+from collections import defaultdict
 
 class World:
     def __init__(self, size=10):
         self.size = size
-        self.grid = [[Tile() for _ in range(size)] for _ in range(size)]
+        self.grid = {}
+        self.control = defaultdict(list)  # cell -> group
 
-    def step(self):
-        for row in self.grid:
-            for tile in row:
-                tile.regenerate()
+        for x in range(size):
+            for y in range(size):
+                self.grid[(x, y)] = random.randint(1, 5)  # food per cell
 
-    def random_position(self):
-        return random.randint(0, self.size - 1), random.randint(0, self.size - 1)
+    def harvest(self, position):
+        food = self.grid[position]
+        self.grid[position] = max(0, food - 1)
+        return food
+
+    def regenerate(self):
+        for pos in self.grid:
+            self.grid[pos] += random.choice([0, 1])
